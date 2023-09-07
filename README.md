@@ -1,4 +1,4 @@
-# Laboratorio 1: 5-tap FIR filter
+# Laboratorio 1: Congruencia de Zeller
 ### EL4314 - Arquitectura de Computadoras I
 ### Escuela de Ingeniería Electrónica
 ### Tecnológico de Costa Rica
@@ -11,50 +11,32 @@ Para el desarrollo de este laboratorio, usted deberá contar con una instalació
 
 <br/><br/>
 
-### 5-tap FIR filter
+### Congruencia de Zeller
 
-En este laboratorio usted implementará un [filtro FIR](https://es.wikipedia.org/wiki/FIR_(Finite_Impulse_Response)) (_Finite Impulse Response_) empleando lenguaje ensamblador para RV32I. Dicho filtro se ejecutará en un sistema en chip (SoC), creado con LiteX, y en el cual se tendrá un _core_ de RISC-V.
-
-Un filtro FIR se define matemáticamente como:
-```math
-$$ y_{n}=\sum _{k=0}^{N-1}b_{k}x_{n-k} $$
-```
-lo cual se puede expresar alternativamente como:
-
-```math
- y[n]  = b_{0}x[n]+b_{1}x[n-1]+\cdots +b_{N}x[n-N]\\
-     = \sum _{i=0}^{N}b_{i}\cdot x[n-i] 
-```
-
-
-Como se observa de las anteriores ecuaciones, el cálculo de la salida $y[n]$ depende de las muestras (entradas) $x[n]$ y las anteriores hasta la $x[n-N]$. Para el caso del filtro a implementar, 5-tap, requerira de la muestra $x[n]$ y las anteriores 4. 
-
-Para el filtro a implementar, considere que los coeficientes $[b_0, b_1, b_2, b_3, b_4]$ el valor de los coeficientes como $[1,-2,3,-2,1]$.
+La congruencia de Zeller es una algoritmo que permite determinar el día de la semana para cualquier fecha del calendario. En este laboratorio usted implementará dicho algoritmo en empleando lenguaje ensamblador para RV32I. Dicho algoritmo se ejecutará en un sistema en chip (SoC), creado con LiteX, y en el cual se tendrá un _core_ de RISC-V.
 
 <br/><br>
 
 ### Implementación
-Para la implementación de su programa, deberá guiarse con código de ejemplo que le es provisto en este repositorio. Deberá crear una archivo en C, `fir.c` (y su correspondiente `fir.h`) que le permita capturar del usuario 10 muestras (entradas) a ser filtradas, así como desplegar el correspondiente resultado. Por ejemplo, se espera recibir una entrada como se muestra a continuación. El resultado obtenido se deberá mostrar como se ejemplifica. 
+Para la implementación de su programa, deberá guiarse con código de ejemplo que le es provisto en este repositorio. Deberá crear una archivo en C, `zeller.c` (y su respectivo `zeller.h`) que le permita capturar del usuario día, mes y año y despliegue como resultado el día de la semana correspondiente. Por ejemplo, se espera recibir una entrada como se muestra a continuación. El resultado obtenido se deberá mostrar como se ejemplifica. 
 
 ```bash
-lab1> fir
-[3,4,2,-3,-5,0,2,7,5,1]
+lab1> zeller
+23.09.2023
 
-Resultado
-[3,-2,3,-1,2,1,-5,10,-8,8]
+Día: Sábado 
 ```
 
+Como se muestra anteriormente, debe ingresar la fecha separando el día, mes y año con un punto; y como salida debe indicar el día al que corresponder. Usted deberá investigar cómo implementar el algoritmo de una forma sencilla ya que lo hará usan un lenguaje de muy bajo nivel.
 
-Las funcionalidades que implemente en dicho `fir.c` solamente serán para la captura y preparación de los datos que se procesarán con el filtro que será implementado en lenguaje ensamblador.
-
-El programa en lenguaje ensamblador deberá recibir una muestra a la vez y ser capaz de almacenar hasta 4 muestras anteriores para poder realizar el filtrado de manera apropiada. Debido a que el filtro implica la suma de las entradas escaladas por los coeficientes, y que usted se debe limitar al uso de las instrucciones del ISA RV32I, deberá implementar una forma eficiente para realizar la multiplicación, considerando que las entradas y los coeficientes son enteros con signo.
+Las funcionalidades que implemente en `zeller.c` solamente serán para la captura y preparación de los datos que se procesarán con el algoritmo que será implementado en lenguaje ensamblador. dicho programa deberá recibir los tres datos como tres parámetros diferentes. Se debe limitar al uso de las instrucciones del ISA RV32I y deberá implementar una forma eficiente para realizar operaciones como multiplicación y división, según sea neceario
 
 _Hint_: El siguiente fragmento de código ilustra, desde la perspectiva de C, la entrada y la salida a su programa para el filtro que deberá implementar en lenguaje ensamblador.
 
 ```c
-int fir(int xn) {
+int zeller(int day, int month, int year) {
     ...
-    return yn;
+    return day_of_week;
 }
 ```
 
@@ -64,18 +46,10 @@ int fir(int xn) {
 Evalúe su implementación del filtro para al menos los siguientes casos:
 
 ````
-[0,1,2,1,0,-1,-2,-1,0,1]
-[-4,5,2,0,3,-3,1,4,2,-7]
-[0,0,0,1,0,0,0,0,0,0]
-[0,1,2,3,4,0,1,2,3,4]
-````
-y agregué acá los resultados obtenidos para estos conjuntos de datos de entrada.
-
-````
-[]
-[]
-[]
-[]
+06.09.2023
+01.01.2000
+27.02.1985
+31.07.1992
 ````
 
 <br/><br>
@@ -117,13 +91,13 @@ Este laboratorio se evaluará con la siguiente rúbrica
 
 | Rubro | % | C | EP | D | NP |
 |-------|---|---|----|---|----|
-|`fir_asm.S` produce el resultado correcto| 50|   |    |   |    |
+|`zeller.S` produce el resultado correcto| 60|   |    |   |    |
 |Integración en `main.c`|30|   |    |   |    |
-|Uso de repositorio |20|   |    |   |    |
+|Uso de repositorio |10|   |    |   |    |
 
 C: Completo,
 EP: En progreso ($\times 0,8$),
 D: Deficiente ($\times 0,5$),
 NP: No presenta ($\times 0$)
 
-- El uso del repositorio implica que existan contribuciones de todos los miembros del equipo. El último _commit_ debe registrarte antes de las 23:59 del miércoles 15 de marzo de 2023.
+- El uso del repositorio implica que existan contribuciones de todos los miembros del equipo. El último _commit_ debe registrarte antes de las 23:59 del jueves 14 de setiembre de 2023.
